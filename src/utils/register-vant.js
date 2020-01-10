@@ -7,7 +7,9 @@ import {
   CellGroup,
   NavBar,
   Field,
-  Toast } from 'vant'
+  Toast,
+  CountDown,
+  Icon } from 'vant'
 // 注册
 Vue.use(Button)
   .use(Cell)
@@ -15,3 +17,5 @@ Vue.use(Button)
   .use(NavBar) // 导航栏
   .use(Field) // 输入框
   .use(Toast) // 轻提示
+  .use(CountDown) // 倒计时
+  .use(Icon) // Icon 图标

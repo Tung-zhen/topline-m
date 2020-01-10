@@ -12,7 +12,9 @@
         clearable
         label="手机号"
         placeholder="请输入手机号"
-      />
+      >
+      <i class="icon icon-shouji" slot="left-icon"></i>
+      </van-field>
 
       <van-field
         v-model="user.code"
@@ -20,9 +22,22 @@
         placeholder="请输入验证码"
         required
       >
-        <van-button slot="button" size="small" type="primary">
-          发送验证码
-        </van-button>
+        <i class="icon icon-mima" slot="left-icon"></i>
+        <van-count-down
+        v-if="isCountDownShow"
+          slot="button"
+          :time="1000 * 60"
+          format="ss 秒"
+          @finish="isCountDownShow = false"
+        />
+        <van-button
+          v-else
+          slot="button"
+          size="small"
+          type="primary"
+          round
+          @click="onSendSmsCode"
+          >发送验证码</van-button>
       </van-field>
     </van-cell-group>
 
@@ -34,7 +49,7 @@
 </template>
 
 <script>
-import { login } from '@/api/user'
+import { login, getSmsCode } from '@/api/user'
 
 export default {
   name: 'LoginPage',
@@ -45,7 +60,8 @@ export default {
       user: {
         mobile: '', // 手机号
         code: '' // 验证码
-      }
+      },
+      isCountDownShow: false // 是否显示倒计时
     }
   },
   computed: {},
@@ -53,6 +69,7 @@ export default {
   created () {},
   mounted () {},
   methods: {
+    // 登录请求
     async onLogin () {
       // 1.获取表单数据
       const user = this.user
@@ -74,6 +91,32 @@ export default {
         this.$toast.fail('登录失败')
       }
       // 4.根据接口返回结果执行后续处理
+    },
+
+    // 发送验证码
+    async onSendSmsCode () {
+      // 1. 获取手机号
+      const { mobile } = this.user
+      // 2. 校验手机号是否有效
+      // 3. 发送验证码
+      try {
+        // 显示倒计时
+        this.isCountDownShow = true
+
+        // 发送
+        await getSmsCode(mobile)
+      } catch (err) {
+        console.log(err)
+
+        // 发送失败,关闭倒计时
+        this.isCountDownShow = false
+
+        if (err.response.status === 429) {
+          this.$toast('请勿频繁发送')
+          return
+        }
+        this.$toast('发送失败')
+      }
     }
   }
 }
